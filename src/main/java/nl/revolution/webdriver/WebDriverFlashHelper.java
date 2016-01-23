@@ -25,19 +25,16 @@ public class WebDriverFlashHelper {
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
-                try {
-                    if (driver != null) {
-                        driver.quit();
-                    }
-                } catch (Exception e) {
-                    System.out.println("Stopping WebDriver failed: " + e.getStackTrace());
-                }
+                closeWebDriver();
             }
         });
     }
 
     public void closeWebDriver() {
-        driver.quit();
+        if (driver != null) {
+            driver.quit();
+            driver = null;
+        }
     }
 
     public void clickButtonWithLabel(String label) {
