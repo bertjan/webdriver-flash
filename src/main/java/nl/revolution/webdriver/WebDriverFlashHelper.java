@@ -16,8 +16,24 @@ public class WebDriverFlashHelper {
     private JavascriptExecutor jsDriver;
 
     public WebDriverFlashHelper() {
-        driver = new FirefoxDriver();
+        new WebDriverFlashHelper(new FirefoxDriver());
+    }
+
+    public WebDriverFlashHelper(WebDriver webDriver) {
+        this.driver = webDriver;
         jsDriver = (JavascriptExecutor)driver;
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                try {
+                    if (driver != null) {
+                        driver.quit();
+                    }
+                } catch (Exception e) {
+                    System.out.println("Stopping WebDriver failed: " + e.getStackTrace());
+                }
+            }
+        });
     }
 
     public void closeWebDriver() {
@@ -98,4 +114,5 @@ public class WebDriverFlashHelper {
             e.printStackTrace();
         }
     }
+
 }
