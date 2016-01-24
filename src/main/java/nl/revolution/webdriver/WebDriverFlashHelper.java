@@ -37,6 +37,11 @@ public class WebDriverFlashHelper {
         }
     }
 
+    public FlashApp findFlashApp(String flashAppId) {
+        WebElement flashApp = findById(flashAppId);
+        return new FlashApp(this, flashApp);
+    }
+
     public void clickButtonWithLabel(String label) {
         driver.findElements(By.tagName("input")).stream()
                 .filter(button -> label.equals(button.getAttribute("value")))
@@ -50,38 +55,35 @@ public class WebDriverFlashHelper {
     public void clickButtonWithId(String id) {
         driver.findElement(By.id(id)).click();
     }
-    public void typeText(String id, String text) {
+    public WebDriverFlashHelper typeText(String id, String text) {
         driver.findElement(By.id(id)).sendKeys(text);
+        return this;
     }
 
-    public WebElement waitForFlashAppToLoad(String flashAppId, String flashItemId) {
-        WebElement flashApp = driver.findElement(By.id(flashAppId));
+    public WebElement findById(String id) {
+        return driver.findElement(By.id(id));
+    }
+
+    public void clickFlashItem(WebElement flashApp, String flashItemId) {
         for (int i=0; i<50; i++) {
             String flashObjectId = String.valueOf(jsDriver.executeScript("return arguments[0].findID('" + flashItemId + "');", flashApp));
             if (!"0".equals(flashObjectId)) {
                 // Wait a bit more to finish loading.
-                sleep(500);
-                return flashApp;
+                sleep(100);
+                jsDriver.executeScript("arguments[0].click(arguments[1]);", flashApp, flashObjectId);
+                return;
             }
-
             sleep(100);
         }
         throw new NoSuchElementException("Flash item '" + flashItemId + "' not found.");
     }
 
-    public void clickFlashItem(WebElement flashApp, String flashItemId) {
-        String flashObjectId = String.valueOf(jsDriver.executeScript("return arguments[0].findID('" + flashItemId + "');", flashApp));
-        if ("0".equals(flashObjectId)) {
-            throw new NoSuchElementException("Flash item '" + flashItemId + "' not found.");
-        }
-        jsDriver.executeScript("arguments[0].click(arguments[1]);", flashApp, flashObjectId);
-    }
-
-    public void clickLinkWithText(String linkText) {
+    public WebDriverFlashHelper clickLinkWithText(String linkText) {
         findByLinkText(linkText).click();
+        return this;
     }
 
-    public void selectDropdown(String id, String text) {
+    public WebDriverFlashHelper selectDropdown(String id, String text) {
         for (int i=0;i<10;i++) {
             try {
                 new Select(driver.findElement(By.id(id))).selectByVisibleText(text);
@@ -89,6 +91,7 @@ public class WebDriverFlashHelper {
                 sleep(100);
             }
         }
+        return this;
     }
 
     public WebElement findByLinkText(String linkText) {
